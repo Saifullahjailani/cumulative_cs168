@@ -1,0 +1,61 @@
+6.6
+Tear down 
+the side initiate the close is active closer
+the side thet respond to the close is passive closer
+
+thinks as if the the side initiating sends a syn and the side closing on the other side sends ack
+
+when we have passive close:
+    FIN is recived by client 
+    respond with an ack for the FIN 
+    change the status to CLOSE_WAIT
+
+    phase 2:
+    when an app calls close()
+    send FIN 
+    wait for the other side to passively close and send ack
+
+
+Steps on how to approach:
+1. check if it is a FIN in handle_accepted_seg():
+    call handle_accepted_fin()
+
+modifying handle_accepted_fin()
+the FIN ack should be rcv.nxt + 1
+based on the graph if current state is ESTABLISHED, set it to close wait
+call set_pending_ack()
+
+Alert!!!! use the funky addition |PLUS| to add to seq numbers 
+
+
+
+Modify close
+Figuring this part took some time,
+refer to the following tcp flags for FIN_control
+
+CLOSED = "CLOSED"
+LISTEN = "LISTEN"
+SYN_RECEIVED = "SYN RECEIVED"
+ESTABLISHED = "ESTABLISHED"
+SYN_SENT = "SYN_SENT"
+FIN_WAIT_1 = "FIN_WAIT_1"
+FIN_WAIT_2 = "FIN_WAIT_2"
+CLOSING = "CLOSING"
+TIME_WAIT = "TIME_WAIT"
+CLOSE_WAIT = "CLOSE_WAIT"
+LAST_ACK = "LAST_ACK"
+
+this part ensures that data in tx_buffer is sent before sending FIN
+
+
+in check acks 
+ask the fin_ctrl to check if this is the ack for the fin
+    close the socket
+
+for some reason 6 was not passing unitll changed 
+if snd.una |LT| seg.ack and seg.ack |LE| snd.nxt:
+to 
+if snd.una |LEif snd.una |LE| seg.ack and seg.ack |LE| snd.nxt:
+| seg.ack and seg.ack |LE| snd.nxt:
+
+could not figure out why is this the reason?
